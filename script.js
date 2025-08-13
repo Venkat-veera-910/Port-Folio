@@ -70,7 +70,7 @@ class Ball {
 
     // Faster movement
     this.x += this.vx * 1.5;
-    this.y += this.vy * 1.5;
+    this.y += this.vy * 1;
 
     // Bounce on floor
     if (this.y + this.radius > H - 120) {
