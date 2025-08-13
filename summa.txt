@@ -1,3 +1,3 @@
 print(Hello World)
 
-hai how are you
+print(hai how are you)
