@@ -44,120 +44,96 @@ setTimeout(() => {
 //=========================================================
 
   
-// Recursive Bouncing Balls - Fast Mode
-const canvas = document.getElementById("loaderCanvas");
-const ctx = canvas.getContext("2d");
-let W = window.innerWidth;
-let H = window.innerHeight;
-canvas.width = W;
-canvas.height = H;
+    // Recursive Bouncing Balls
+    const canvas = document.getElementById("loaderCanvas");
+    const ctx = canvas.getContext("2d");
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
 
-class Ball {
-  constructor(x, y, radius, color, vx = 0, vy = 0) {
-    this.x = x; 
-    this.y = y; 
-    this.radius = radius; 
-    this.color = color;
-    this.vx = vx; 
-    this.vy = vy;
-    this.bounceCount = 0; 
-    this.splitReady = false;
-  }
-
-  update() {
-    // Increased gravity for faster fall
-    this.vy += 1.2;
-
-    // Faster movement
-    this.x += this.vx * 1.5;
-    this.y += this.vy * 1;
-
-    // Bounce on floor
-    if (this.y + this.radius > H - 120) {
-      this.y = H - 120 - this.radius;
-      this.vy *= -0.9; // little loss for realism
-      this.bounceCount++;
-      if (this.bounceCount >= 1) this.splitReady = true;
-    }
-
-    // Bounce on walls
-    if (this.x - this.radius < 0 || this.x + this.radius > W) {
-      this.vx *= -1;
-    }
-  }
-
-  drawShadow(ctx, floorY) {
-    const maxShadowRadius = this.radius * 1.5;
-    const heightRatio = (floorY - this.y) / (floorY - this.radius);
-    const shadowRadiusX = maxShadowRadius * (1 - heightRatio * 0.7);
-    const shadowRadiusY = shadowRadiusX * 0.4;
-    const shadowAlpha = 0.4 * (1 - heightRatio);
-    ctx.save();
-    ctx.fillStyle = `rgba(0,0,0,${shadowAlpha.toFixed(2)})`;
-    ctx.beginPath();
-    ctx.ellipse(this.x, floorY + 5, shadowRadiusX, shadowRadiusY, 0, 0, Math.PI * 2);
-    ctx.fill(); 
-    ctx.restore();
-  }
-
-  draw(ctx, floorY) {
-    this.drawShadow(ctx, floorY);
-    ctx.save();
-    ctx.beginPath();
-    const grad = ctx.createRadialGradient(
-      this.x - this.radius / 3, 
-      this.y - this.radius / 3, 
-      this.radius / 5, 
-      this.x, 
-      this.y, 
-      this.radius
-    );
-    grad.addColorStop(0, 'rgba(255,255,255,0.9)');
-    grad.addColorStop(1, this.color);
-    ctx.fillStyle = grad;
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.closePath();
-    ctx.restore();
-  }
-
-  shouldSplit() {
-    return this.splitReady;
-  }
-}
-
-const balls = [];
-const colors = ["#000000", "#222020ff", "#949494ff", "#4d4d4d", "#666666", "#808080", "#999999"];
-
-// First ball - much faster launch
-balls.push(new Ball(W / 2, H / 2, 22, colors[0], 0, -18));
-
-function animate() {
-  ctx.clearRect(0, 0, W, H);
-  const floorY = H - 120;
-  const newBalls = [];
-
-  for (let ball of balls) {
-    ball.update();
-    ball.draw(ctx, floorY);
-
-    if (ball.shouldSplit() && balls.length + newBalls.length < 9) {
-      ball.splitReady = false;
-      for (let i = 0; i < 2; i++) {
-        const radius = Math.random() * 10 + 8;
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        const vx = (Math.random() - 0.5) * 14; // faster horizontal
-        const vy = -Math.random() * 14 - 8;    // faster vertical
-        newBalls.push(new Ball(ball.x, ball.y, radius, color, vx, vy));
+    class Ball {
+      constructor(x, y, radius, color, vx = 0, vy = 0) {
+        this.x = x; 
+        this.y = y; 
+        this.radius = radius;
+        this.color = color;
+        this.vx = vx;
+        this.vy = vy;
+        this.bounceCount = 0;
+        this.splitReady = false;
+      }
+      update() {
+        this.vy += 0.5;
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.y + this.radius > H - 120) {
+          this.y = H - 120 - this.radius;
+          this.vy *= -1;
+          this.bounceCount++;
+          if (this.bounceCount >= 1) this.splitReady = true;
+        }
+        if (this.x - this.radius < 0 || this.x + this.radius > W)
+          this.vx *= -1;
+      }
+      drawShadow(ctx, floorY) {
+        const maxShadowRadius = this.radius * 1.5;
+        const heightRatio = (floorY - this.y) / (floorY - this.radius);
+        const shadowRadiusX = maxShadowRadius * (1 - heightRatio * 0.7);
+        const shadowRadiusY = shadowRadiusX * 0.4;
+        const shadowAlpha = 0.4 * (1 - heightRatio);
+        ctx.save();
+        ctx.fillStyle = `rgba(0,0,0,${shadowAlpha.toFixed(2)})`;
+        ctx.beginPath();
+        ctx.ellipse(this.x, floorY + 5, shadowRadiusX, shadowRadiusY, 0, 0, Math.PI * 2);
+        ctx.fill(); ctx.restore();
+      }
+      draw(ctx, floorY) {
+        this.drawShadow(ctx, floorY);
+        ctx.save();
+        ctx.beginPath();
+        const grad = ctx.createRadialGradient(this.x - this.radius / 3, this.y - this.radius / 3, this.radius / 5, this.x, this.y, this.radius);
+        grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+        grad.addColorStop(1, this.color);
+        ctx.fillStyle = grad;
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+        ctx.restore();
+      }
+      shouldSplit() {
+        return this.splitReady;
       }
     }
-  }
 
-  balls.push(...newBalls);
-  requestAnimationFrame(animate);
-}
+    const balls = [];
+    const colors = ["#000000", "#1a1a1a", "#333333", "#4d4d4d", "#666666", "#808080", "#999999"];
+    balls.push(new Ball(W / 2, H / 2, 22, colors[0], 0, -8));
 
-animate();
+    function animate() {
+      ctx.clearRect(0, 0, W, H);
+      const floorY = H - 120;
+      const newBalls = [];
+
+      for (let ball of balls) {
+        ball.update();
+        ball.draw(ctx, floorY);
+        if (ball.shouldSplit() && balls.length + newBalls.length < 9) {
+          ball.splitReady = false;
+          for (let i = 0; i < 2; i++) {
+            const radius = Math.random() * 10 + 8;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const vx = (Math.random() - 0.5) * 8;
+            const vy = -Math.random() * 10 - 6;
+            newBalls.push(new Ball(ball.x, ball.y, radius, color, vx, vy));
+          }
+        }
+      }
+
+      balls.push(...newBalls);
+      requestAnimationFrame(animate);
+    }
+    animate();
 
 
     // Loader & Wipe transition
